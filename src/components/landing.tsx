@@ -18,18 +18,25 @@ function Landing() {
     d: checkbox4,
   };
 
-  //Each checkboz should have an id asociated with it, pass in the id to update ballot, now we know which box to update
-
-  // I want this function to post the ballot to the backend
-  const mutation = api.example.postBallot.useMutation();
+  // post the ballot to the backend
+  const mutation: any = api.example.postBallot.useMutation();
 
   function postBallot(newBallot: any) {
     mutation.mutate({ ...newBallot });
   }
 
-  // const allBallots = api.example.getBallots.useQuery();
-
   mutation.data && console.log(mutation.data);
+
+  function ObjectComponent() {
+    const myObject = mutation.data;
+
+    return (
+      <div>
+        <p>{myObject?.message}</p>
+      </div>
+    );
+  }
+
   // Now I want this to post to the backend ONLY IF it is not in there alr
 
   // sync the ballot state in the UI and in the state
@@ -41,6 +48,9 @@ function Landing() {
     <Box className="bg-blue flex h-[600px] w-[500px] flex-col items-center justify-center bg-blue-600">
       {/* Make a list of checkboxes, then each needs an ID and setBallot
       and based on the ID, pass the id for each checkbox */}
+      <h1>
+        <ObjectComponent />
+      </h1>
 
       <Checkbox
         checked={checkbox1}
