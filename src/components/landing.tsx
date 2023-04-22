@@ -11,9 +11,6 @@ function Landing() {
   const [checkbox3, setCheckbox3] = useState(false);
   const [checkbox4, setCheckbox4] = useState(false);
 
-  console.log(checkbox1);
-  console.log(checkbox2);
-
   const ballot = {
     a: checkbox1,
     b: checkbox2,
@@ -30,7 +27,16 @@ function Landing() {
     mutation.mutate({ ...newBallot });
   }
 
+  // const allBallots = api.example.getBallots.useQuery();
+
+  mutation.data && console.log(mutation.data);
+  // Now I want this to post to the backend ONLY IF it is not in there alr
+
   // sync the ballot state in the UI and in the state
+
+  // You can fetch the potential options, then redner a checkbox for each otpion
+  // ONce someone votes for a checbox,
+
   return (
     <Box className="bg-blue flex h-[600px] w-[500px] flex-col items-center justify-center bg-blue-600">
       {/* Make a list of checkboxes, then each needs an ID and setBallot

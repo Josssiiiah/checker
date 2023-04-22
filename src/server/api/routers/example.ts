@@ -8,23 +8,6 @@ import {
 import { prisma } from "~/server/db";
 
 export const exampleRouter = createTRPCRouter({
-  hello: publicProcedure
-    .input(z.object({ text: z.string() }))
-
-    .query(({ input }) => {
-      return {
-        greeting: `Hello ${input.text}`,
-      };
-    }),
-
-  getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.example.findMany();
-  }),
-
-  getSecretMessage: protectedProcedure.query(() => {
-    return "you can now see this secret message!";
-  }),
-
   postBallot: publicProcedure
     .input(
       z.object({
@@ -36,11 +19,55 @@ export const exampleRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ input }) => {
-      const ballotPosted = await prisma.ballot.create({
-        data: {
-          ...input,
+      const allBallots = await prisma.ballot.findMany();
+      // APROACH 1.0 -> Pull every value in the database, loop through it, if in there do x or do y
+
+      // var success = true;
+
+      // for (let i = 0; i < allBallots.length; i++) {
+      //   if (
+      //     allBallots.length > 0 &&
+      //     allBallots[i]?.a === input.a &&
+      //     allBallots[i]?.b === input.b &&
+      //     allBallots[i]?.c === input.c &&
+      //     allBallots[i]?.d === input.d
+      //   ) {
+      //     success = false;
+      //     return {
+      //       success: success,
+      //       message: "Ballot already exists!",
+      //       ballots: allBallots,
+      //       input: input,
+      //     };
+      //   }
+
+      // APPROACH 2.0 -> Use the prisma query to check if the ballot exists
+      const ballotExists = await prisma.ballot.findFirst({
+        where: {
+          a: input.a,
+          b: input.b,
+          c: input.c,
+          d: input.d,
         },
       });
-      return { success: true, message: "Ballot Posted!" };
+
+      if (ballotExists) {
+        return {
+          success: false,
+          message: "Ballot already exists!",
+        };
+      } else {
+        const ballotPosted = await prisma.ballot.create({
+          data: {
+            ...input,
+          },
+        });
+        return {
+          success: true,
+          message: "Ballot Posted!",
+          ballots: allBallots,
+          input: input,
+        };
+      }
     }),
 });

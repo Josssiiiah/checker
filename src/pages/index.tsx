@@ -8,10 +8,6 @@ import { Checkbox, Box } from "@mui/material";
 import { pink } from "@mui/material/colors";
 
 const Home: NextPage = () => {
-  const hello = api.example.hello.useQuery({ text: "from tRPC" });
-
-  hello.data ? console.log(hello.data) : console.log("no data");
-
   return (
     <>
       <Head>
