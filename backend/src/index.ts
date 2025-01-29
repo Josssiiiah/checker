@@ -2,7 +2,7 @@ import { Elysia } from 'elysia';
 import { cors } from '@elysiajs/cors';
 import { swagger } from '@elysiajs/swagger';
 import { db } from './db/connection';
-import { users, chats } from './db/schema';
+import { users, chats, buttonCounter } from './db/schema';
 import { eq } from 'drizzle-orm';
 import { openai } from '@ai-sdk/openai';
 import { streamText } from 'ai';
@@ -192,6 +192,47 @@ const app = new Elysia()
         messageCount: messages.length,
       };
     });
+  })
+  .get('/api/counter', async () => {
+    const counter = await db.select().from(buttonCounter).limit(1);
+    if (!counter[0]) {
+      // Initialize counter if it doesn't exist
+      const newCounter = await db
+        .insert(buttonCounter)
+        .values({
+          count: 0,
+          lastUpdated: new Date().toISOString(),
+        })
+        .returning();
+      return newCounter[0];
+    }
+    return counter[0];
+  })
+  .post('/api/counter/increment', async () => {
+    const counter = await db.select().from(buttonCounter).limit(1);
+    if (!counter[0]) {
+      // Initialize counter if it doesn't exist
+      const newCounter = await db
+        .insert(buttonCounter)
+        .values({
+          count: 1,
+          lastUpdated: new Date().toISOString(),
+        })
+        .returning();
+      return newCounter[0];
+    }
+
+    // Increment existing counter
+    const updatedCounter = await db
+      .update(buttonCounter)
+      .set({
+        count: counter[0].count + 1,
+        lastUpdated: new Date().toISOString(),
+      })
+      .where(eq(buttonCounter.id, counter[0].id))
+      .returning();
+
+    return updatedCounter[0];
   })
   .listen(process.env.BACKEND_PORT || 3001);
 
